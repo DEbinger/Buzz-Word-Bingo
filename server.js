@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const app = express();
 const fs = require('fs');
 
+points = 0;
+
 let buzzWords = [];
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -29,13 +31,29 @@ app.post('/buzzword', ( req, res, next ) => {
 app.put('/buzzword', (req, res, next)=> {
   for(let i = 0; i < buzzWords.length; i++){
     if (req.body.buzzWord === buzzWords[i].buzzWord){
-      let pointsValue = parseInt(buzzWords[i].points);
-      let reqNewPoints = parseInt(req.body.points);
-      buzzWords[i].points = pointsValue + reqNewPoints;
       buzzWords[i].heard = true;
-      res.send({'success': true,'newScore': buzzWords[i].points});
+      points += parseInt(buzzWords[i].points);
+      res.send(`{'success': 'true', newScore: ${points}}`);
     }
   }
+  res.send('{"success": false}');
+});
+
+app.delete('/buzzword', (req, res, next) =>{
+  for(var i = 0; i < buzzWords.length; i++){
+    if(buzzWords[i].buzzword === req.body.buzzword){
+      buzzWords.splice(i, 1);
+      res.send('{"success": true}');
+    }
+  }
+  res.send('{"success": false');
+
+});
+
+app.post('/reset', function (req, res) {
+  score = 0;
+  buzzWords = [];
+  res.send({"success": true});
 });
 
 app.listen(3000, function(server,  port) {
